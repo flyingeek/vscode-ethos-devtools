@@ -125,6 +125,22 @@ function normalise(
 }
 
 // ---------------------------------------------------------------------------
+// Hex appId extraction
+// ---------------------------------------------------------------------------
+
+/** Matches 0x followed by 1–4 hex digits anywhere in a column header. */
+const HEX_IN_HEADER_RE = /0x([0-9a-fA-F]{1,4})/i;
+
+/**
+ * Returns the numeric appId encoded in a raw column header (e.g. "0x1234",
+ * "Voltage(V)0x1234", "0x1234 Voltage"), or null if none is present.
+ */
+function extractHexAppId(raw: string): number | null {
+  const m = HEX_IN_HEADER_RE.exec(raw);
+  return m ? parseInt(m[1], 16) : null;
+}
+
+// ---------------------------------------------------------------------------
 // Numeric parsing helpers
 // ---------------------------------------------------------------------------
 
@@ -161,6 +177,9 @@ export function buildColumnPlan(
   const appIdMap = new Map<string, number>(
     sensors.filter(s => s.name !== '' && s.appId !== undefined).map(s => [s.name, s.appId!])
   );
+  const appIdToSensor = new Map<number, { name: string; appId: number }>(
+    sensors.filter(s => s.appId !== undefined).map(s => [s.appId!, { name: s.name, appId: s.appId! }])
+  );
   const format = detectFormat(headers);
   const plan: ColumnEntry[] = [];
 
@@ -186,6 +205,17 @@ export function buildColumnPlan(
         plan.push({ colIndex: i, frames });
       }
       continue;
+    }
+
+    // ── Hex appId: maps column to a custom sensor by appId ───────────────
+    const hexAppId = extractHexAppId(raw);
+    if (hexAppId !== null) {
+      const sensor = appIdToSensor.get(hexAppId);
+      if (sensor && !mappedFrames.has(sensor.name)) {
+        mappedFrames.add(sensor.name);
+        plan.push({ colIndex: i, frames: [{ name: sensor.name, appId: sensor.appId, parse: parseFloat_ }] });
+      }
+      continue; // skip name-based resolution whether or not we found a sensor
     }
 
     const frameName = normalise(raw, format, frameSet);

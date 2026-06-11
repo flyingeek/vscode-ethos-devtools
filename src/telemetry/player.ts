@@ -172,7 +172,9 @@ async function playPass(
     }
 
     rowIndex++;
-    onProgress?.(rowIndex, loopIteration, payload.map(p => p.name), totalRows);
+    onProgress?.(rowIndex, loopIteration, payload.map(p =>
+      p.appId !== undefined ? `${p.name}(0x${p.appId.toString(16)})` : p.name
+    ), totalRows);
   }
 
   return { plan: columnPlan, dateIdx, timeIdx };
