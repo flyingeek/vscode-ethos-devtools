@@ -1,0 +1,168 @@
+{
+    "name": "Ethos Log",
+    "scopeName": "text.log",
+    "patterns": [
+        { "include": "#error" },
+        { "include": "#warn" },
+        {
+            "comment": "Script errors detected by ethos",
+            "match": "^(^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} \\[.+\\] \\d{6,}.+SCRIPTS:/[^:]+:\\d+.+)$",
+            "name": "markup.bold markup.deleted ethoslog.error"
+        },
+        {
+            "comment": "Highlight Ethos simulator start/stop lines",
+            "begin": "^(?=.+\\] \\d{6,}.+Ethos.+(stopped|started)!$)",
+            "end": "!$",
+            "name": "markup.heading ethoslog.ethos-start-stop",
+            "patterns": [
+                { "include": "#task-status" },
+                { "include": "#task-success" },
+                { "include": "#task-failure" }
+            ]
+        },
+        {
+            "comment": "Ethos log lines recognized by [level] followed a 6+ digits clock counter.",
+            "begin": "^(?=.+\\] \\d{6,}\\b)",
+            "end": "$",
+            "patterns": [
+                { "include": "#not-found" },
+                { "include": "#timestamp-ethos" },
+                { "include": "#debug" },
+                { "include": "#info" },
+                { "include": "#clock" },
+                { "include": "#single-quoted-string" },
+                { "include": "#double-quoted-string" },
+                { "include": "#class-lua" },
+                { "include": "#class-method" },
+                { "include": "#function-call" },
+                { "include": "#key-value-pair" },
+                { "include": "#task-status" },
+                { "include": "#task-success" },
+                { "include": "#task-failure" },
+                { "include": "#number" }
+            ]
+        },
+        { "include": "#timestamp-lua" },
+        { "include": "#debug" },
+        { "include": "#info" },
+        { "include": "#single-quoted-string" },
+        { "include": "#double-quoted-string" },
+        { "include": "#class-method" },
+        { "include": "#function-call" },
+        { "include": "#key-value-pair" },
+        { "include": "#task-status" },
+        { "include": "#task-success" },
+        { "include": "#task-failure" },
+        { "include": "#number" }
+    ],
+    "repository": {
+        "error": {
+            "comment": "Highlight any log lines containing the word 'error' as errors to make them stand out",
+            "match": "^(.*((?i:err\\b|error)).*)$",
+            "name": "markup.bold markup.deleted ethoslog.error"
+        },
+        "not-found": {
+            "comment": "Lua not found are severe error",
+            "match": "^(.*(?i:lua).+((?i:not found)).*)$",
+            "name": "markup.bold markup.deleted ethoslog.error"
+        },
+        "warn": {
+            "comment": "Highlight any log lines containing the word 'warn' as warnings to make them stand out",
+            "match": "^(.*((?i:warn\\b|warning)).*)$",
+            "name": "markup.bold markup.changed ethoslog.warn"
+        },
+        "debug": {
+            "comment": "Log level color for debug",
+            "match": "(\\[((?i:debug))\\])",
+            "name": "markup.other ethoslog.debug"
+        },
+        "info": {
+            "comment": "Log level color for info",
+            "match": "(\\[((?i:info))\\])",
+            "name": "markup.inserted ethoslog.info"
+        },
+        "timestamp-ethos": {
+            "comment": "Date+time prefix: 2026-06-12 14:57:21.990 for ethos log lines",
+            "match": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}",
+            "name": "comment.block ethoslog.timestamp.ethos"
+        },
+        "timestamp-lua": {
+            "comment": "Date+time prefix: 2026-06-12 14:57:21.990 for lua log lines",
+            "match": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}",
+            "name": "ethoslog.timestamp.lua"
+        },
+        "clock": {
+            "comment": "6+-digit zero-padded task counter right after the log level bracket",
+            "match": "(?<=\\] )\\d{6,}\\b",
+            "name": "comment.block ethoslog.clock"
+        },
+        "single-quoted-string": {
+            "comment": "Single-quoted path/string arguments: 'USER:/radio.bin'",
+            "name": "string.quoted.single.ethoslog",
+            "begin": "'",
+            "end": "'",
+            "patterns": [ { "include": "#filepath" } ]
+        },
+        "double-quoted-string": {
+            "comment": "Double-quoted string arguments: \"/persist/X20PRO\"",
+            "name": "string.quoted.double.ethoslog",
+            "begin": "\"",
+            "end": "\"",
+            "patterns": [ { "include": "#filepath" } ]
+        },
+        "filepath": {
+            "comment": "Filesystem paths inside strings: AUDIO:/..., USER:/..., /absolute/path",
+            "match": "(?:[A-Z]+:/|/)[^\\s'\"()]*",
+            "name": "entity.name.filename.ethoslog"
+        },
+        "class-lua": {
+            "comment": "Lua::method — method name colored as function",
+            "match": "\\b(Lua::)(\\w+)",
+            "captures": {
+                "1": { "name": "entity.name.class.ethoslog" },
+                "2": { "name": "entity.name.function.method.ethoslog" }
+            }
+        },
+        "class-method": {
+            "comment": "C++ style Class::method calls: SystemData::write",
+            "match": "\\b([A-Z][A-Za-z0-9]+)::(\\w+)",
+            "captures": {
+                "1": { "name": "entity.name.type.class.ethoslog" },
+                "2": { "name": "entity.name.function.method.ethoslog" }
+            }
+        },
+        "function-call": {
+            "comment": "Bare function calls (lowercase start): playHaptic(), storageInit()",
+            "match": "\\b([a-z][A-Za-z0-9]+)(?=\\()",
+            "name": "entity.name.function.ethoslog"
+        },
+        "key-value-pair": {
+            "comment": "Numeric keyword arguments: duration=10, id=27, strip=0",
+            "match": "\\b(\\w+)=(\\d+)",
+            "captures": {
+                "1": { "name": "variable.parameter.key.ethoslog" },
+                "2": { "name": "constant.numeric.value.ethoslog" }
+            }
+        },
+        "task-status": {
+            "comment": "Task lifecycle verbs appearing at end of log messages",
+            "match": "\\b(started|resumed|finished|suspended|stopped)!?\\b",
+            "name": "keyword.other ethoslog.task-status"
+        },
+        "task-success": {
+            "comment": "Task lifecycle verbs appearing at end of log messages",
+            "match": "\\b(succeeded|written)!?\\b",
+            "name": "markup.inserted ethoslog.task-status.success"
+        },
+        "task-failure": {
+            "comment": "Task lifecycle verbs appearing at end of log messages",
+            "match": "\\b(failed|not found)!?\\b",
+            "name": "markup.bold keyword.other ethoslog.task-status.failure"
+        },
+        "number": {
+            "comment": "Fallback for any remaining bare numbers",
+            "match": "\\b\\d+\\b",
+            "name": "constant.numeric.ethoslog"
+        }
+    }
+}

@@ -30,6 +30,26 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "log",
+        "aliases": [
+          "Ethos Log",
+          "log"
+        ],
+        "extensions": [
+          ".log"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "log",
+        "scopeName": "text.log",
+        "path": "./syntaxes/ethoslog.tmGrammar.json"
+      }
+    ],
     "configuration": {
       "title": "Ethos DevTools",
       "properties": {
