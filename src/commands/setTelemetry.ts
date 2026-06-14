@@ -21,13 +21,20 @@ export async function setTelemetryCommand(): Promise<void> {
     const raw = await vscode.commands.executeCommand<unknown>('ethos.getSensors');
     const sensors = normalizeSensors(raw);
 
-    const namedItems: SensorItem[] = [];
-    const seenNames = new Set<string>();
+    // Count how many sensors share each name (to show appId when ambiguous)
+    const nameCount = new Map<string, number>();
     for (const s of sensors) {
-      if (s.name !== '' && !seenNames.has(s.name)) {
-        seenNames.add(s.name);
-        namedItems.push({ label: s.name, sensor: s });
-      }
+      if (s.name !== '') { nameCount.set(s.name, (nameCount.get(s.name) ?? 0) + 1); }
+    }
+
+    const namedItems: SensorItem[] = [];
+    for (const s of sensors) {
+      if (s.name === '') { continue; }
+      const isDuplicate = (nameCount.get(s.name) ?? 0) > 1;
+      const label = isDuplicate && s.appId !== undefined
+        ? `${s.name}(0x${s.appId.toString(16)})`
+        : s.name;
+      namedItems.push({ label, sensor: s });
     }
     namedItems.sort((a, b) => a.label.localeCompare(b.label));
 
