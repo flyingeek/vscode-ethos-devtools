@@ -72,7 +72,7 @@ You might notice there are some duplicates, for example, Altitude is present in 
 ]
 ```
 
-both GPS Altitude and VariADV Altitude will be set. This is intentional, as this tool is for debug purpose. If this is a problem for you, use several sensors.json.
+both GPS Altitude and VariADV Altitude will be set. This is intentional, as this tool is for debug purpose. However, it is possible to pass an appId as well to target a specific sensor.
 
 ## CSV injection of telemetry data in ethos-vscode-extension
 
@@ -103,18 +103,28 @@ Date,Time,Altitude(m),RxBatt(V),GPS
 
 ```
 
+Here we target two different Altitude sensors
+
+```csv
+Date,Time,Altitude 0x820, Altitude 0x1000
+2025-02-09,16:15:40.610,9,16,12
+2025-02-09,16:15:41.030,9,17,13
+
+```
+
 CSV units are ignored, so you can have "Altitude(m)" or "Altitude(ft)", it will be the same. The only important thing is that the frame name (without unit) is defined in sensors.json.
 
 This extension will try to convert known names, for example "GPS Altitude(m)" will be converted to "Altitude", but this is not guaranteed to work in all cases, so it's better to have a clean CSV file with frame names matching those in sensors.json.
 
 ## Custom sensor frames
 
-You can set a name in the sensors.json for your custom sensors. Even if the name is not displayed in the Telemetry webview, you can use it in your CSV file and it will be accepted by the simulator.
+You can set a name in the sensors.json for your custom sensors. Even if the name is not displayed in the Telemetry webview, you can use it in your CSV file and it will be accepted by the simulator. You can also use the appId in hexadecimal format, for example 0x400 in the CSV.
 
-If name is not set, you can not use it in CSV playback, but you can still use the ethos-devtools.setTelemetry command or the ethos.injectTelemetry command.
+When using the `ethos.injectTelemetry` function, you can pass either a name or an appId. For example, both of these calls are valid, but targeting will be best using both (normally the couple name + appId is unique).
 
 ```js
 ethos.injectTelemetry([{"name": "My custom frame", "value": 42}, {"appId": 0x400, value: 42}]);
+ethos.injectTelemetry([{"name": "My custom frame", "appId": 0x400, value: 42}]);
 ```
 
-Note that when you create your DIY sensor in the radio, it must use a physId of 0x98 in the simulator.
+Note that when you create your DIY sensor in the radio, **it must use a physId of 0x98 in the simulator**.

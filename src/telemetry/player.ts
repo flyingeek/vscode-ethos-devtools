@@ -154,15 +154,18 @@ async function playPass(
     if (token.isCancellationRequested) { break; }
 
     // Build injection payload
-    const payload: Array<{ name: string; appId?: number; value: number }> = [];
+    const payload: Array<{ name?: string; appId?: number; value: number }> = [];
+    const displayNames: string[] = [];
     for (const entry of columnPlan) {
       const raw = row[entry.colIndex] ?? '';
       for (const frame of entry.frames) {
         const value = frame.parse(raw);
         if (value !== null) {
-          const item: { name: string; appId?: number; value: number } = { name: frame.name, value };
+          const item: { name?: string; appId?: number; value: number } = { value };
+          if (frame.name !== '') { item.name = frame.name; }
           if (frame.appId !== undefined) { item.appId = frame.appId; }
           payload.push(item);
+          displayNames.push(frame.label);
         }
       }
     }
@@ -172,9 +175,7 @@ async function playPass(
     }
 
     rowIndex++;
-    onProgress?.(rowIndex, loopIteration, payload.map(p =>
-      p.appId !== undefined ? `${p.name}(0x${p.appId.toString(16)})` : p.name
-    ), totalRows);
+    onProgress?.(rowIndex, loopIteration, displayNames, totalRows);
   }
 
   return { plan: columnPlan, dateIdx, timeIdx };
