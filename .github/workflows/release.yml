@@ -34,7 +34,7 @@ jobs:
           - os: macos-latest
             target: darwin-x64
             rebuild_arch: x64
-          - os: windows-latest
+          - os: windows-2022
             target: win32-x64
             rebuild_arch: x64
           - os: ubuntu-latest
