@@ -2,6 +2,8 @@
 
 Ethos DevTools `flyingeek.ethos-devtools` is a VS Code extension that complements the [bsongis.ethos](https://marketplace.visualstudio.com/items?itemName=bsongis.ethos) extension.
 
+It colorizes Ethos log files.
+
 It adds those commands to VS Code:
 
 - **Ethos DevTools: Play Telemetry CSV** — replay a CSV telemetry log (Ethos or EdgeTX format) into the running simulator and pin a telemetry status label in the Ethos extension
