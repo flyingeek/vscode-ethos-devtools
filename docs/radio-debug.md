@@ -1,5 +1,7 @@
 # Ethos DevTools: Radio Debug (`ethos-devtools.radioDebug`)
 
+The **Ethos DevTools: Radio Debug** command is a troubleshooting tool for radio detection issues. It is available when a radio is connected via USB and the platform-specific VSIX is installed.
+
 It shows a Quick Pick with the following options:
 
 - **Show Debug Connection** collects a diagnostic snapshot of the radio USB/HID state and writes it to the **Ethos Debug Connection** output channel. It is useful for troubleshooting radio detection issues before attempting a deploy.

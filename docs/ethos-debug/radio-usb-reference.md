@@ -15,6 +15,7 @@ Observed with a FrSky TWXLITES on macOS Sequoia 26 beta (kernel 25.5.0, x64).
 | Default storage | `radio` |
 
 Product string changes by mode:
+
 - **Serial mode**: `FrSky TWXLITES Serial Port`
 - **USB mass storage mode**: `FrSky TWXLITES Interface`
 
@@ -69,3 +70,10 @@ The HID interface remains accessible while in mass storage mode (step 6 works wi
 - First HID open may trigger an **Input Monitoring** privacy permission prompt (macOS Catalina+).
 - Volumes unmount automatically when `stopSerialMode()` is sent; no explicit `diskutil unmount` needed from the deploy side (the radio handles it).
 - On macOS there is no equivalent of `FSCTL_LOCK_VOLUME` (Windows only) — not needed for the sequential deploy workflow.
+
+## Serial and USB mass storage output collected from the same radio on different platforms
+
+- [OSX serial mode](./osx_serial.txt)
+- [OSX USB mode](./osx_usb.txt)
+- [PC serial mode](./pc_serial.txt)
+- [PC USB mode](./pc_usb.txt)

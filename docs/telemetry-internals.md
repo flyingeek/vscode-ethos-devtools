@@ -76,7 +76,7 @@ both GPS Altitude and VariADV Altitude will be set. This is intentional, as this
 
 ## CSV injection of telemetry data in ethos-vscode-extension
 
-When the extension begins to play a csv file, first it requests the list of available frame names (those defined in sensors.json), then it parses the log file. Frame names are defined on the first row of the CSV, the extension then reads lines either in real time or with a speed multiplier. The extension sends to the `bsongis.extension` only the frame names defined both in the csv file and in the sensors.json. This reduces the bandwidth needed.
+When the extension begins to play a csv file, first it requests the list of available frame names (those defined in sensors.json), then it parses the log file. Frame names are defined on the first row of the CSV, the extension then reads lines either in real time or with a speed multiplier. The extension sends to the `bsongis.ethos` only the frame names defined both in the csv file and in the sensors.json. This reduces the bandwidth needed.
 
 Example of a CSV file:
 
@@ -103,7 +103,7 @@ Date,Time,Altitude(m),RxBatt(V),GPS
 
 ```
 
-Here we target two different Altitude sensors
+Here we target two different Altitude sensors (This is only valid with bsongis.ethos version > v0.6.1)
 
 ```csv
 Date,Time,Altitude 0x820, Altitude 0x1000
@@ -117,6 +117,8 @@ CSV units are ignored, so you can have "Altitude(m)" or "Altitude(ft)", it will 
 This extension will try to convert known names, for example "GPS Altitude(m)" will be converted to "Altitude", but this is not guaranteed to work in all cases, so it's better to have a clean CSV file with frame names matching those in sensors.json.
 
 ## Custom sensor frames
+
+This feature is only available with bsongis.ethos version > v0.6.1
 
 You can set a name in the sensors.json for your custom sensors. Even if the name is not displayed in the Telemetry webview, you can use it in your CSV file and it will be accepted by the simulator. You can also use the appId in hexadecimal format, for example 0x400 in the CSV.
 
