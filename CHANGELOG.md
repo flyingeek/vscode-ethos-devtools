@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [0.9.2] - 2026-06-19
+
+- appId can be specified in CSV headers (bsongis.ethos > 0.6.1)
+- setTelemetry shows appId for duplicate frame names (bsongis.ethos > 0.6.1)
+- Ethos log colorization
+- Documentation rewritten
+- ethos-devtools.reload accepts args as will ethos-menu.json with bsongis.ethos > 0.6.1
+
 ## [0.9.1] - 2026-06-11
 
 - Had to change icon (wrong size)
