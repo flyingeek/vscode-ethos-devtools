@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import type { EthosMeta, DeployConfig, DeployTarget } from './types';
-import { resolvePath, expandGlob } from './utils';
+import { expandGlob } from './utils';
+import { resolveSimulatorScriptsLocation } from './simulatorPath';
 
 /** Sync all files from srcDir into destDir: copy new/changed, delete stale. */
 async function syncAll(srcDir: string, destDir: string, channel: vscode.OutputChannel): Promise<{ copiedCount: number; deletedCount: number }> {
@@ -128,24 +129,12 @@ export async function simulatorTarget(
     workspaceRoot: string,
     channel: vscode.OutputChannel
 ): Promise<DeployTarget | undefined> {
-    const ethosConfig = vscode.workspace.getConfiguration('ethos');
-    const simulatorsFolder = ethosConfig.get<string>('simulatorsFolder');
-    const board = ethosConfig.get<string>('board');
-    const protocol = ethosConfig.get<string>('protocol');
-    const release = ethosConfig.get<string>('release');
-
-    const missing: string[] = [];
-    if (!simulatorsFolder) { missing.push('ethos.simulatorsFolder'); }
-    if (!board)            { missing.push('ethos.board'); }
-    if (!protocol)         { missing.push('ethos.protocol'); }
-    if (!release)          { missing.push('ethos.release'); }
-    if (missing.length > 0) {
-        vscode.window.showErrorMessage(`Ethos Deploy: missing settings: ${missing.join(', ')}`);
+    const simulatorLocation = resolveSimulatorScriptsLocation(workspaceRoot, 'Ethos Deploy');
+    if (!simulatorLocation) {
         return undefined;
     }
 
-    const destBase = resolvePath(simulatorsFolder!, workspaceRoot);
-    const destAppPath = path.join(destBase, `${board}_${protocol}@${release}`, 'scripts', appname);
+    const destAppPath = path.join(simulatorLocation.scriptsPath, appname);
 
     const destManifestPath = path.join(destAppPath, 'ethos_lua_manifest.json');
     const sourceManifestPath = projectManifest
@@ -162,5 +151,5 @@ export async function simulatorTarget(
         channel.appendLine(`  --- ${copiedCount} file(s) copied, ${deletedCount} deleted ---`);
     };
 
-    return { destAppPath, destBase, deploy };
+    return { destAppPath, destBase: simulatorLocation.destBase, deploy };
 }

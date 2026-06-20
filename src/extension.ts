@@ -6,6 +6,9 @@ import { radioDebugCommand, radioSerialConsoleCommand } from './commands/radioDe
 import { reloadCommand } from './commands/reload';
 import { openManifestDoc, registerManifestDocProvider } from './commands/openManifestDoc'
 import { scaffoldCommand } from './commands/scaffold'
+import { openInstallerCommand } from './commands/install/openInstaller';
+import { installThemeCommand } from './commands/install/installTheme';
+import { installAudioPackCommand } from './commands/install/installAudioPack';
 
 export function activate(context: vscode.ExtensionContext): void {
   registerManifestDocProvider(context)
@@ -21,6 +24,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('ethos-devtools.radioDebug',      () => radioDebugCommand()),
     vscode.commands.registerCommand('ethos-devtools.radioSerial',     () => radioSerialConsoleCommand()),
     vscode.commands.registerCommand('ethos-devtools.reload',           () => reloadCommand()),
+    vscode.commands.registerCommand('ethos-devtools.installer',       () => openInstallerCommand(context.extensionUri, context)),
+    vscode.commands.registerCommand('ethos-devtools.installTheme',    () => installThemeCommand(context.extensionUri)),
+    vscode.commands.registerCommand('ethos-devtools.installAudioPack', () => installAudioPackCommand(context)),
     vscode.commands.registerCommand('ethos-devtools.openManifestDoc', () => openManifestDoc()),
     vscode.commands.registerCommand('ethos-devtools.scaffoldProject', () => scaffoldCommand(context.extensionUri)),
   );

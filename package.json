@@ -34,7 +34,9 @@
       {
         "path": "./syntaxes/ethos-devtools.injection.json",
         "scopeName": "ethos-devtools.injection",
-        "injectTo": ["text.log"]
+        "injectTo": [
+          "text.log"
+        ]
       }
     ],
     "configuration": {
@@ -291,6 +293,19 @@
         "icon": "$(debug-restart)"
       },
       {
+        "command": "ethos-devtools.installer",
+        "title": "Ethos DevTools: Installer",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "ethos-devtools.installTheme",
+        "title": "Ethos DevTools: Install Theme"
+      },
+      {
+        "command": "ethos-devtools.installAudioPack",
+        "title": "Ethos DevTools: Install Audio Pack"
+      },
+      {
         "command": "ethos-devtools.openManifestDoc",
         "title": "Open Manifest Documentation",
         "category": "Ethos",
@@ -305,6 +320,11 @@
       "editor/title": [
         {
           "command": "ethos-devtools.reload",
+          "when": "activeWebviewPanelId == 'display'",
+          "group": "navigation"
+        },
+        {
+          "command": "ethos-devtools.installer",
           "when": "activeWebviewPanelId == 'display'",
           "group": "navigation"
         },
@@ -334,6 +354,7 @@
     "prepare": "husky || true"
   },
   "dependencies": {
+    "jszip": "^3.10.1",
     "node-hid": "^3.3.0"
   },
   "overrides": {
