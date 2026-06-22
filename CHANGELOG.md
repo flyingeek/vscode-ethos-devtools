@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [Unreleased]
+
+- Install theme icon in titlebar of Display webview
+- Install audio pack icon in titlebar of Display webview
+
 ## [0.9.2] - 2026-06-19
 
 - appId can be specified in CSV headers (bsongis.ethos > 0.6.1)

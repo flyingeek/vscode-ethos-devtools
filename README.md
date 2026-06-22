@@ -4,15 +4,11 @@ Ethos DevTools `flyingeek.ethos-devtools` is a VS Code extension that complement
 
 The extension is only activated in workspaces where the [bsongis.ethos](https://marketplace.visualstudio.com/items?itemName=bsongis.ethos) extension is active. It requires `bsongis.ethos` to be installed.
 
-## Features
+## Main Features
 
 ### Deploy to Simulator
 
 This is the main feature of the extension, it makes working on your project easier by copying a Lua app folder from the workspace into the Ethos simulator's scripts directory, with optional manifest-driven selective copy and pre/post-deploy steps. See [Deploy to Simulator](./docs/deploy-simulator.md).
-
-### Log Colorization
-
-Colorizes Ethos log files — errors, warnings, Lua script errors, `Lua::method` calls, and simulator start/stop events are each highlighted distinctly. See [Log Colorization](./docs/log-colorization.md).
 
 ### Telemetry Playback
 
@@ -22,9 +18,14 @@ Replay a CSV telemetry log (Ethos or EdgeTX format) into the running simulator a
 
 Deploy a Lua app folder to a connected radio over USB, in several sync modes. See [Deploy to Radio](./docs/deploy-radio.md). This can be useful for testing on a real radio at the last stage of development.
 
-### Scaffold New Project
+### Other Features
 
-Scaffold a new Lua project from a GitHub template repository, with interactive prompts and template variable substitution. See [Project Scaffolding](./docs/scaffolding-project.md).
+- Colorizes Ethos log files — errors, warnings, Lua script errors, `Lua::method` calls, and simulator start/stop events are each highlighted distinctly. See [Log Colorization](./docs/log-colorization.md).
+- Scaffold a new Lua project from a GitHub template repository, with interactive prompts and template variable substitution. See [Project Scaffolding](./docs/scaffolding-project.md).
+- Set Telemetry values in the running simulator on demand, with a quick pick list of all sensors declared.
+- Icon to open ethos_lua_manifest specs when editing a manifest file
+- Icon to install in the current simulator a theme or an audio pack
+- Icon to quickly reload the simulator (stop/deploy/start)
 
 ## Main commands
 
