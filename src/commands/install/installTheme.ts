@@ -3,6 +3,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { resolveSimulatorScriptsLocation } from '../deploy/simulatorPath';
 import { getInstallerOutputChannel } from './outputChannel';
+import { createCache } from './cache';
 
 interface ThemeEntry {
     download: string;
@@ -16,24 +17,21 @@ interface ThemeQuickPickItem extends vscode.QuickPickItem {
     installAll?: boolean;
 }
 
-const THEMES_LIST_URL = 'https://github.com/flyingeek/ethos-themes/releases/latest/themes.json';
+const THEMES_LIST_URL = 'https://github.com/flyingeek/ethos-themes/releases/latest/download/themes.json';
+const THEMES_CACHE_KEY = 'themesCatalog';
+const THEMES_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const themeCache = createCache<ThemeCatalog>(THEMES_CACHE_TTL_MS);
 
-async function fetchThemesCatalog(extensionUri: vscode.Uri): Promise<ThemeCatalog> {
-    try {
-        const response = await fetch(THEMES_LIST_URL);
-        if (response.ok) {
-            const data = await response.json() as ThemeCatalog;
-            if (typeof data === 'object' && data !== null) {
-                return data;
-            }
-        }
-    } catch {
-        // Fallback to the bundled copy.
+async function fetchThemesCatalog(): Promise<ThemeCatalog> {
+    const response = await fetch(THEMES_LIST_URL);
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status} ${response.statusText}`);
     }
-
-    const bundled = vscode.Uri.joinPath(extensionUri, 'themes.json');
-    const raw = await fs.readFile(bundled.fsPath, 'utf8');
-    return JSON.parse(raw) as ThemeCatalog;
+    const data = await response.json() as ThemeCatalog;
+    if (typeof data !== 'object' || data === null) {
+        throw new Error('Invalid themes catalog format');
+    }
+    return data;
 }
 
 function compareVersions(a: string, b: string): number {
@@ -116,7 +114,7 @@ async function downloadAndInstallTheme(themeName: string, downloadUrl: string, t
     return installThemeFromZip(zipBytes, themeName, targetDir);
 }
 
-export async function installThemeCommand(extensionUri: vscode.Uri): Promise<void> {
+export async function installThemeCommand(context: vscode.ExtensionContext): Promise<void> {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceRoot) {
         vscode.window.showErrorMessage('Ethos Themes: no workspace folder open.');
@@ -128,12 +126,19 @@ export async function installThemeCommand(extensionUri: vscode.Uri): Promise<voi
     channel.appendLine(`\n--- Ethos Themes: ${new Date().toLocaleTimeString()} ---`);
 
     let catalog: ThemeCatalog;
-    try {
-        catalog = await fetchThemesCatalog(extensionUri);
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        vscode.window.showErrorMessage(`Ethos Themes: could not load themes list (${message}).`);
-        return;
+    const cachedCatalog = themeCache.read(THEMES_CACHE_KEY, context);
+    if (cachedCatalog) {
+        catalog = cachedCatalog;
+        channel.appendLine('  cache   : hit');
+    } else {
+        try {
+            catalog = await fetchThemesCatalog();
+            await themeCache.store(THEMES_CACHE_KEY, catalog, context);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            vscode.window.showErrorMessage(`Ethos Themes: could not load themes list (${message}).`);
+            return;
+        }
     }
 
     const themeNames = Object.keys(catalog)

@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('ethos-devtools.radioSerial',     () => radioSerialConsoleCommand()),
     vscode.commands.registerCommand('ethos-devtools.reload',           () => reloadCommand()),
     vscode.commands.registerCommand('ethos-devtools.installer',       () => openInstallerCommand(context.extensionUri, context)),
-    vscode.commands.registerCommand('ethos-devtools.installTheme',    () => installThemeCommand(context.extensionUri)),
+    vscode.commands.registerCommand('ethos-devtools.installTheme',    () => installThemeCommand(context)),
     vscode.commands.registerCommand('ethos-devtools.installAudioPack', () => installAudioPackCommand(context)),
     vscode.commands.registerCommand('ethos-devtools.openManifestDoc', () => openManifestDoc()),
     vscode.commands.registerCommand('ethos-devtools.scaffoldProject', () => scaffoldCommand(context.extensionUri)),

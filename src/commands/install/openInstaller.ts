@@ -25,7 +25,7 @@ export async function openInstallerCommand(extensionUri: vscode.Uri, context: vs
     }
 
     if (action.label === 'Install Theme') {
-        await installThemeCommand(extensionUri);
+        await installThemeCommand(context);
         return;
     }
 

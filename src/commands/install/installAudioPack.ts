@@ -3,6 +3,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { resolveSimulatorScriptsLocation } from '../deploy/simulatorPath';
 import { getInstallerOutputChannel } from './outputChannel';
+import { createCache } from './cache';
 
 interface GitHubReleaseAsset {
     name: string;
@@ -18,14 +19,9 @@ interface AudioPackItem extends vscode.QuickPickItem {
     downloadUrl: string;
 }
 
-interface CachedAudioPackCatalog {
-    savedAt: number;
-    assets: AudioPackItem[];
-}
-
 const AUDIO_PACK_CACHE_KEY_PREFIX = 'audioPackCatalog:';
 const AUDIO_PACK_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
-const audioPackCatalogMemoryCache = new Map<string, CachedAudioPackCatalog>();
+const audioPackCache = createCache<AudioPackItem[]>(AUDIO_PACK_CACHE_TTL_MS);
 
 function extractLocaleFromAudioPackName(name: string): string | undefined {
     const match = /^audio-([a-z0-9-]+)\.zip$/i.exec(name);
@@ -98,35 +94,6 @@ function getAudioPackCacheKey(releaseTag: string): string {
     return `${AUDIO_PACK_CACHE_KEY_PREFIX}${releaseTag}`;
 }
 
-function readCachedAudioPackAssets(releaseTag: string, context: vscode.ExtensionContext): AudioPackItem[] | undefined {
-    const now = Date.now();
-    const cacheKey = getAudioPackCacheKey(releaseTag);
-    const memoryCached = audioPackCatalogMemoryCache.get(cacheKey);
-
-    if (memoryCached && now - memoryCached.savedAt <= AUDIO_PACK_CACHE_TTL_MS) {
-        return memoryCached.assets;
-    }
-
-    const persistedCached = context.globalState.get<CachedAudioPackCatalog>(cacheKey);
-    if (persistedCached && now - persistedCached.savedAt <= AUDIO_PACK_CACHE_TTL_MS) {
-        audioPackCatalogMemoryCache.set(cacheKey, persistedCached);
-        return persistedCached.assets;
-    }
-
-    return undefined;
-}
-
-async function storeCachedAudioPackAssets(releaseTag: string, assets: AudioPackItem[], context: vscode.ExtensionContext): Promise<void> {
-    const cacheKey = getAudioPackCacheKey(releaseTag);
-    const cachedValue: CachedAudioPackCatalog = {
-        savedAt: Date.now(),
-        assets,
-    };
-
-    audioPackCatalogMemoryCache.set(cacheKey, cachedValue);
-    await context.globalState.update(cacheKey, cachedValue);
-}
-
 async function installAudioPackFromZip(zipBytes: Buffer, targetAudioDir: string, expectedLocale: string): Promise<number> {
     const JSZip = (await import('jszip')).default;
     const zip = await JSZip.loadAsync(zipBytes);
@@ -180,19 +147,20 @@ export async function installAudioPackCommand(context: vscode.ExtensionContext):
     channel.appendLine(`\n--- Ethos Audio Packs: ${new Date().toLocaleTimeString()} ---`);
 
     let audioPacks: AudioPackItem[];
-    const cachedAudioPacks = readCachedAudioPackAssets(releaseTag, context);
+    const cacheKey = getAudioPackCacheKey(releaseTag);
+    const cachedAudioPacks = audioPackCache.read(cacheKey, context);
     if (cachedAudioPacks) {
         audioPacks = cachedAudioPacks;
         channel.appendLine(`  cache   : hit (${releaseTag})`);
     } else {
-    try {
-        audioPacks = await fetchAudioPackAssetsByReleaseTag(releaseTag);
-        await storeCachedAudioPackAssets(releaseTag, audioPacks, context);
-    } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        vscode.window.showErrorMessage(`Ethos Audio: could not fetch assets (${message}).`);
-        return;
-    }
+        try {
+            audioPacks = await fetchAudioPackAssetsByReleaseTag(releaseTag);
+            await audioPackCache.store(cacheKey, audioPacks, context);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            vscode.window.showErrorMessage(`Ethos Audio: could not fetch assets (${message}).`);
+            return;
+        }
     }
 
     if (audioPacks.length === 0) {
