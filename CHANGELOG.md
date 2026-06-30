@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.9.4] - 2026-06-30
+
+- Fixed bad url for themes, implemented a shared cache logic with audio packs.
+
 ## [0.9.3] - 2026-06-30
 
 - Install theme icon in titlebar of Display webview
