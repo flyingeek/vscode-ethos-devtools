@@ -30,7 +30,7 @@
     {
       "label": "release: tag and push",
       "type": "shell",
-      "command": "npm run release -- ${input:releaseTag}",
+      "command": "npm run release -- \"${input:releaseTag}\"",
       "problemMatcher": [],
       "group": "build"
     }
