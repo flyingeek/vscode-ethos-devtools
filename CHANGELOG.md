@@ -1,9 +1,10 @@
 # CHANGELOG
 
-## [Unreleased]
+## [0.9.3] - 2026-06-30
 
 - Install theme icon in titlebar of Display webview
 - Install audio pack icon in titlebar of Display webview
+- New Icon
 
 ## [0.9.2] - 2026-06-19
 
