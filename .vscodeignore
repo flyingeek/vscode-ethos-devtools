@@ -13,6 +13,18 @@ tsconfig.json
 
 # Bundle node-hid (native addon) and its transitive runtime deps;
 # exclude everything else in node_modules.
+#
+# CAVEAT: `!node_modules/node-hid/` unignores the whole directory (and
+# `!node_modules/node-hid/build/`, `.../build/Release/` do the same for those
+# subdirs). Per gitignore semantics, unignoring a directory re-includes
+# everything inside it by default — so the specific file patterns below
+# (nodehid.js, package.json, etc.) are NOT a real allowlist, they're inert.
+# The actual trimming (removing bin/, hidapi/, prebuilds/, src/, binding.gyp,
+# non-.node build files) is done by the "Trim node-hid package contents" step
+# in .github/workflows/release.yml via `rm -rf`, which runs before `vsce
+# package`. If node-hid is upgraded and starts shipping new files, update
+# that CI step, not this file — this file alone won't stop them from being
+# bundled.
 node_modules/**
 !node_modules/node-hid/
 !node_modules/node-hid/package.json
