@@ -74,28 +74,27 @@ function sanitizeZipEntry(entryName: string, themeName: string): string {
 }
 
 async function installThemeFromZip(zipBytes: Buffer, themeName: string, targetDir: string): Promise<number> {
-    const JSZip = (await import('jszip')).default;
-    const zip = await JSZip.loadAsync(zipBytes);
+    const { unzipSync } = await import('fflate');
+    const entries = unzipSync(new Uint8Array(zipBytes));
     const targetRoot = path.resolve(targetDir);
     let copiedCount = 0;
 
-    for (const entry of Object.values(zip.files)) {
-        if (entry.dir) {
+    for (const [entryName, content] of Object.entries(entries)) {
+        if (entryName.endsWith('/')) {
             continue;
         }
 
-        const relPath = sanitizeZipEntry(entry.name, themeName);
+        const relPath = sanitizeZipEntry(entryName, themeName);
         if (!relPath) {
             continue;
         }
 
         const absolutePath = path.resolve(targetDir, relPath);
         if (absolutePath !== targetRoot && !absolutePath.startsWith(targetRoot + path.sep)) {
-            throw new Error(`Blocked zip entry outside target directory: ${entry.name}`);
+            throw new Error(`Blocked zip entry outside target directory: ${entryName}`);
         }
 
         await fs.mkdir(path.dirname(absolutePath), { recursive: true });
-        const content = await entry.async('nodebuffer');
         await fs.writeFile(absolutePath, content);
         copiedCount++;
     }

@@ -354,7 +354,7 @@
     "prepare": "husky || true"
   },
   "dependencies": {
-    "jszip": "^3.10.1",
+    "fflate": "^0.8.3",
     "node-hid": "^3.3.0"
   },
   "overrides": {
