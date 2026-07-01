@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.9.5] - 2026-07-01
+
+- Fix bundle was missing unzip library, now fflate is bundled with the extension.
+
 ## [0.9.4] - 2026-06-30
 
 - Fixed bad url for themes, implemented a shared cache logic with audio packs.
