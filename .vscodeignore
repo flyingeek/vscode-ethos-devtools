@@ -26,5 +26,9 @@ node_modules/**
 !node_modules/pkg-prebuilds/**
 
 # Bundle fflate (pure JS, zero-dependency runtime dep used by
-# installTheme/installAudioPack to unzip downloaded archives).
-!node_modules/fflate/**
+# installTheme/installAudioPack to unzip downloaded archives). We use it via
+# a dynamic import(), which Node resolves through the "import" export
+# condition (./esm/index.mjs), not the CJS build — only that file plus
+# package.json are needed at runtime.
+!node_modules/fflate/package.json
+!node_modules/fflate/esm/index.mjs
